@@ -54,16 +54,15 @@ async function setup(context) {
     // Connect the device to the web audio graph
     device.node.connect(outputNode);
 
+    // (Optional) Attach listeners to outports so you can log messages from the RNBO patcher
+    attachOutports(device);
+
     const inports = getInports(device);
     console.log("Inports:")
     console.log(inports);
 
     //setupStartStop(device, context);
     setupXYPad(device);
-
-    /* document.body.onclick = () => {
-        context.resume();
-    } */
 
     // Skip if you're not using guardrails.js
     if (typeof guardrails === "function")
@@ -116,35 +115,32 @@ function sendMessageToInport(device, inportTag, values) {
   device.scheduleEvent(messageEvent);
 }
 
+function attachOutports(device) {
+  const outports = device.outports;
+  if (outports.length < 1) {
+    document
+      .getElementById("rnbo-console")
+      .removeChild(document.getElementById("rnbo-console-div"));
+    return;
+  }
+  console.log("Outports:");
+  console.log(outports);
 
-// START AND STOP BUTTON
-// This function sets up the start/stop button to toggle playback of the device
+  document
+    .getElementById("rnbo-console")
+    .removeChild(document.getElementById("no-outports-label"));
+  device.messageEvent.subscribe((ev) => {
+    // Ignore message events that don't belong to an outport
+    if (outports.findIndex((elt) => elt.tag === ev.tag) < 0) return;
 
-/* function setupStartStop(device) {  //(device, context) {
-  const startButton = document.getElementById("start-button");
-  let isPlaying = false;
+    // Message events have a tag as well as a payload
+    console.log(`${ev.tag}: ${ev.payload}`);
 
-  startButton.onclick = async () => {
-    if (!isPlaying && context.state !== "running") {
-      await context.resume();
-      console.log("AudioContext resumed");
-    }
-    if (isPlaying && context.state === "running") {
-      await context.suspend();
-      console.log("AudioContext suspended");
-    } 
-    isPlaying = !isPlaying;
-    startButton.textContent = isPlaying ? "STOP" : "PLAY";
-    console.log(`Device is now ${isPlaying ? "playing" : "stopped"}`);
-
-    const messageEvent = new RNBO.MessageEvent(
-      RNBO.TimeNow,
-      "start",
-      isPlaying ? [1] : [0]
-    );
-    device.scheduleEvent(messageEvent);
-  };
-} */
+    document.getElementById(
+      "rnbo-console-readout"
+    ).innerText = `${ev.tag}: ${ev.payload}`;
+  });
+}
 
 
 // XY PAD
