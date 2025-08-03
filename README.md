@@ -1,3 +1,6 @@
 NOISE #1: No-Input Feedback Instrument created with RNBO.
 
-_"Let's make some harsh noise from your phone ,)"_
+Play the no-input feedback instrument and look for the harsher noise. 
+As long as you can play harshly, the more points you get. Try to make the highest score.
+
+Be aware: harsh noise corrodes energy, and the feedback system goes down unless you are pushing.
